@@ -1,6 +1,6 @@
 <?php return array(
     'root' => array(
-        'name' => 'twiq/laravel-notifications',
+        'name' => 'twiq/livewire-notify',
         'pretty_version' => '1.0.0',
         'version' => '1.0.0.0',
         'reference' => null,
@@ -1328,7 +1328,7 @@
             'aliases' => array(),
             'dev_requirement' => false,
         ),
-        'twiq/laravel-notifications' => array(
+        'twiq/livewire-notify' => array(
             'pretty_version' => '1.0.0',
             'version' => '1.0.0.0',
             'reference' => null,
