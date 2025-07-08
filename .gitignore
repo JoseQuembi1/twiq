@@ -1,0 +1,52 @@
+# Sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# PHP
+*.log
+*.cache
+*.lock
+*.php~
+
+# Composer
+/vendor
+composer.lock
+
+# Node (se algum dia usar js ou npm no pacote)
+node_modules/
+npm-debug.log
+yarn.lock
+pnpm-lock.yaml
+vite.config.js
+tailwind.config.js
+
+# IDEs
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# Testes
+.phpunit.result.cache
+coverage/
+
+# Laravel
+.env
+.env.*
+.env.backup
+/.phpunit.result.cache
+/storage
+/bootstrap/cache/*.php
+
+# Git
+*.orig
+
+# Outros
+*.bak
+*.tmp
+*.swp
+*.swo
+
+# Pacotes publicados
+/public/vendor/twiq
