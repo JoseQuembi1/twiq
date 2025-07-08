@@ -32,7 +32,7 @@
 ## 🚀 Instalação
 
 ```bash
-composer require twiq/laravel-notifications
+composer require twiq/livewire-notify
 ```
 
 ### Publicar Arquivos
