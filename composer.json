@@ -2,7 +2,7 @@
     "name": "twiq/livewire-notify",
     "description": "Elegant notifications for Laravel with Livewire 3, TailwindCSS and Alpine.js",
     "type": "library",
-    "version": "1.0.1",
+    "version": "V1.0.1",
     "keywords": [
         "laravel",
         "livewire",
