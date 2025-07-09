@@ -1,0 +1,8 @@
+{
+    "scripts": {
+        "version": "auto-changelog -p && git add CHANGELOG.md"
+    },
+    "devDependencies": {
+        "auto-changelog": "^2.4.0"
+    }
+}

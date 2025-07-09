@@ -1,0 +1,37 @@
+name: Code Quality
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.1'
+          tools: composer:v2, phpstan
+          
+      - name: Install Dependencies
+        run: composer install --prefer-dist --no-progress
+        
+      - name: Check Code Style
+        run: composer format
+        
+      - name: Static Analysis
+        run: composer analyse
+        
+      - name: Run Tests with Coverage
+        run: composer test-coverage
+        
+      - name: Upload Coverage
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
