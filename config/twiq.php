@@ -3,76 +3,85 @@
 return [
     /*
     |--------------------------------------------------------------------------
-    | Default Position
+    | Posição das Notificações
     |--------------------------------------------------------------------------
     |
-    | The default position for notifications
-    | Options: 'top-right', 'top-left', 'bottom-right', 'bottom-left', 'top-center', 'bottom-center'
+    | Define onde as notificações aparecerão na tela.
+    | Opções: top-left, top-center, top-right, bottom-left, bottom-center, bottom-right
     |
     */
     'position' => 'top-right',
 
     /*
     |--------------------------------------------------------------------------
-    | Default Duration
+    | Duração Padrão
     |--------------------------------------------------------------------------
     |
-    | Default duration in milliseconds for auto-dismissible notifications
-    | Set to 0 for persistent notifications
+    | Tempo em milissegundos que as notificações ficam visíveis antes de
+    | desaparecerem automaticamente. Use 0 para tornar persistente.
     |
     */
     'duration' => 5000,
 
     /*
     |--------------------------------------------------------------------------
-    | Max Notifications
+    | Máximo de Notificações
     |--------------------------------------------------------------------------
     |
-    | Maximum number of notifications to show at once
+    | Número máximo de notificações que podem ser exibidas simultaneamente.
     |
     */
     'max_notifications' => 5,
 
     /*
     |--------------------------------------------------------------------------
-    | Sound
+    | Som
     |--------------------------------------------------------------------------
     |
-    | Enable sound for notifications
+    | Habilita/desabilita o som das notificações.
     |
     */
     'sound' => false,
 
     /*
     |--------------------------------------------------------------------------
-    | Dark Mode
+    | Modo Escuro
     |--------------------------------------------------------------------------
     |
-    | Auto detect dark mode based on system preference
+    | Configuração do modo escuro. Opções: auto, light, dark
     |
     */
-    'dark_mode' => 'auto', // 'auto', 'light', 'dark'
+    'dark_mode' => 'auto',
 
     /*
     |--------------------------------------------------------------------------
-    | Animation
+    | Prevenção de Duplicatas
     |--------------------------------------------------------------------------
     |
-    | Animation settings for notifications
+    | Evita que notificações idênticas sejam exibidas múltiplas vezes.
     |
     */
-    'animation' => [
-        'enter' => 'fade-slide-in',
-        'leave' => 'fade-slide-out',
-        'duration' => 300,
+    'prevent_duplicates' => true,
+
+    /*
+    |--------------------------------------------------------------------------
+    | Agrupamento
+    |--------------------------------------------------------------------------
+    |
+    | Configurações para agrupamento de notificações similares.
+    |
+    */
+    'grouping' => [
+        'enabled' => true,
+        'timeout' => 2000,
     ],
 
     /*
     |--------------------------------------------------------------------------
-    | Types Configuration
+    | Configuração por Tipo
     |--------------------------------------------------------------------------
     |
-    | Configuration for each notification type
+    | Configurações específicas para cada tipo de notificação.
     |
     */
     'types' => [
@@ -87,12 +96,12 @@ return [
             'duration' => 6000,
         ],
         'warning' => [
-            'icon' => 'alert-triangle',
+            'icon' => 'exclamation-triangle',
             'color' => 'yellow',
             'duration' => 5000,
         ],
         'info' => [
-            'icon' => 'info',
+            'icon' => 'information-circle',
             'color' => 'blue',
             'duration' => 4000,
         ],
@@ -100,24 +109,41 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Grouping
+    | Animações
     |--------------------------------------------------------------------------
     |
-    | Group similar notifications
+    | Configurações de animações e transições.
     |
     */
-    'grouping' => [
-        'enabled' => true,
-        'timeout' => 2000, // milliseconds
+    'animations' => [
+        'enter' => 'fadeInDown',
+        'exit' => 'fadeOutUp',
+        'duration' => 300,
     ],
 
     /*
     |--------------------------------------------------------------------------
-    | Prevent Duplicates
+    | Responsividade
     |--------------------------------------------------------------------------
     |
-    | Prevent showing duplicate notifications
+    | Configurações específicas para diferentes tamanhos de tela.
     |
     */
-    'prevent_duplicates' => true,
+    'responsive' => [
+        'mobile' => [
+            'position' => 'top-center',
+            'width' => '100%',
+            'margin' => '1rem',
+        ],
+        'tablet' => [
+            'position' => 'top-right',
+            'width' => 'auto',
+            'margin' => '1rem',
+        ],
+        'desktop' => [
+            'position' => 'top-right',
+            'width' => 'auto',
+            'margin' => '1rem',
+        ],
+    ],
 ];

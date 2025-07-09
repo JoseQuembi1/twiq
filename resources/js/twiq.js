@@ -1,208 +1,180 @@
-// Twiq Notifications Alpine.js Component
 document.addEventListener('alpine:init', () => {
-    Alpine.data('twiqNotifications', (config) => ({
+    Alpine.data('twiqContainer', (config) => ({
         notifications: [],
-        config: config,
-        duplicateMap: new Map(),
+        soundEnabled: config.sound || false,
+        audioContext: null,
 
-        init() {
-            // Listen for global twiq events
+        initialize() {
+            // Inicializar Web Audio API se o som estiver habilitado
+            if (this.soundEnabled) {
+                this.initializeAudio();
+            }
+
+            // Escutar eventos de notificação
             window.addEventListener('twiq', (event) => {
                 this.addNotification(event.detail);
             });
 
-            // Listen for Livewire dispatched events
-            document.addEventListener('twiq', (event) => {
-                this.addNotification(event.detail);
+            // Escutar eventos de limpeza
+            window.addEventListener('twiq:clear', () => {
+                this.clearNotifications();
             });
 
-            // Dark mode detection
-            if (this.config.dark_mode === 'auto') {
-                this.initDarkMode();
-            }
+            // Configurar modo escuro
+            this.setupDarkMode(config.darkMode);
+        },
 
-            // Initialize sound if enabled
-            if (this.config.sound) {
-                this.initSound();
+        initializeAudio() {
+            try {
+                this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            } catch (e) {
+                console.warn('Web Audio API não suportada');
             }
         },
 
-        addNotification(data) {
-            const notification = {
-                id: this.generateId(),
-                type: data.type || 'info',
-                message: data.message || '',
-                title: data.title || null,
-                persistent: data.persistent || false,
-                duration: data.duration || this.config.types[data.type]?.duration || this.config.duration,
-                show: true,
-                timestamp: Date.now()
+        playNotificationSound(type) {
+            if (!this.audioContext) return;
+
+            const oscillator = this.audioContext.createOscillator();
+            const gainNode = this.audioContext.createGain();
+
+            oscillator.connect(gainNode);
+            gainNode.connect(this.audioContext.destination);
+
+            // Diferentes sons para diferentes tipos
+            const sounds = {
+                success: { frequency: 880, duration: 0.1 },
+                error: { frequency: 220, duration: 0.2 },
+                warning: { frequency: 440, duration: 0.15 },
+                info: { frequency: 660, duration: 0.1 }
             };
 
-            // Prevent duplicates
-            if (this.config.prevent_duplicates) {
-                const duplicateKey = `${notification.type}:${notification.message}`;
-                if (this.duplicateMap.has(duplicateKey)) {
-                    return;
-                }
-                this.duplicateMap.set(duplicateKey, notification.id);
+            const sound = sounds[type] || sounds.info;
+
+            oscillator.frequency.value = sound.frequency;
+            gainNode.gain.value = 0.1;
+
+            oscillator.start();
+            oscillator.stop(this.audioContext.currentTime + sound.duration);
+        },
+
+        setupDarkMode(mode) {
+            if (mode === 'auto') {
+                // Observar mudanças no modo escuro do sistema
+                const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+                darkModeMediaQuery.addEventListener('change', (e) => {
+                    document.documentElement.classList.toggle('dark', e.matches);
+                });
                 
-                // Clean up after duration
-                setTimeout(() => {
-                    this.duplicateMap.delete(duplicateKey);
-                }, notification.duration + 1000);
+                // Configuração inicial
+                document.documentElement.classList.toggle('dark', darkModeMediaQuery.matches);
+            } else if (mode === 'dark') {
+                document.documentElement.classList.add('dark');
+            }
+        },
+
+        addNotification(notification) {
+            const id = notification.id || this.generateId();
+            
+            const formattedNotification = {
+                id,
+                type: notification.type || 'info',
+                message: notification.message,
+                title: notification.title,
+                duration: notification.duration || 5000,
+                persistent: notification.persistent || false,
+                visible: true,
+                progress: 100,
+                ...this.getTypeConfig(notification.type)
+            };
+
+            this.notifications.push(formattedNotification);
+
+            if (this.soundEnabled) {
+                this.playNotificationSound(notification.type);
             }
 
-            // Group similar notifications
-            if (this.config.grouping.enabled) {
-                const similar = this.notifications.find(n => 
-                    n.type === notification.type && 
-                    n.message === notification.message &&
-                    (Date.now() - n.timestamp) < this.config.grouping.timeout
-                );
-                
-                if (similar) {
-                    similar.count = (similar.count || 1) + 1;
-                    similar.timestamp = Date.now();
-                    return;
-                }
+            if (!formattedNotification.persistent) {
+                this.startProgressTimer(id, formattedNotification.duration);
             }
 
-            // Enforce max notifications
-            if (this.notifications.length >= this.config.max_notifications) {
+            // Limitar número máximo de notificações
+            if (this.notifications.length > config.maxNotifications) {
                 this.notifications.shift();
             }
+        },
 
-            this.notifications.push(notification);
-            
-            // Play sound if enabled
-            if (this.config.sound) {
-                this.playSound(notification.type);
-            }
+        getTypeConfig(type) {
+            const types = {
+                success: {
+                    icon: 'fas fa-check-circle',
+                    classes: 'bg-green-50 dark:bg-green-900/50',
+                    iconClasses: 'text-green-400 dark:text-green-300',
+                    progressClasses: 'from-green-300 to-green-600'
+                },
+                error: {
+                    icon: 'fas fa-times-circle',
+                    classes: 'bg-red-50 dark:bg-red-900/50',
+                    iconClasses: 'text-red-400 dark:text-red-300',
+                    progressClasses: 'from-red-300 to-red-600'
+                },
+                warning: {
+                    icon: 'fas fa-exclamation-triangle',
+                    classes: 'bg-yellow-50 dark:bg-yellow-900/50',
+                    iconClasses: 'text-yellow-400 dark:text-yellow-300',
+                    progressClasses: 'from-yellow-300 to-yellow-600'
+                },
+                info: {
+                    icon: 'fas fa-info-circle',
+                    classes: 'bg-blue-50 dark:bg-blue-900/50',
+                    iconClasses: 'text-blue-400 dark:text-blue-300',
+                    progressClasses: 'from-blue-300 to-blue-600'
+                }
+            };
+
+            return types[type] || types.info;
+        },
+
+        startProgressTimer(id, duration) {
+            const startTime = Date.now();
+            const endTime = startTime + duration;
+
+            const updateProgress = () => {
+                const now = Date.now();
+                const notification = this.notifications.find(n => n.id === id);
+
+                if (!notification) return;
+
+                const remaining = endTime - now;
+                const progress = (remaining / duration) * 100;
+
+                if (progress <= 0) {
+                    this.removeNotification(id);
+                } else {
+                    notification.progress = progress;
+                    requestAnimationFrame(updateProgress);
+                }
+            };
+
+            requestAnimationFrame(updateProgress);
         },
 
         removeNotification(id) {
             const index = this.notifications.findIndex(n => n.id === id);
             if (index > -1) {
-                this.notifications[index].show = false;
+                this.notifications[index].visible = false;
                 setTimeout(() => {
-                    this.notifications.splice(index, 1);
+                    this.notifications = this.notifications.filter(n => n.id !== id);
                 }, 300);
             }
         },
 
-        setupNotification(notification) {
-            if (!notification.persistent && notification.duration > 0) {
-                setTimeout(() => {
-                    this.removeNotification(notification.id);
-                }, notification.duration);
-            }
-        },
-
-        getNotificationClasses(notification) {
-            let classes = `twiq-notification-${notification.type} ${notification.type}`;
-            
-            if (notification.count && notification.count > 1) {
-                classes += ' grouped';
-            }
-            
-            return classes;
-        },
-
-        getIconClasses(notification) {
-            const color = this.config.types[notification.type]?.color || 'blue';
-            return `text-${color}-500`;
-        },
-
-        getProgressClasses(notification) {
-            const color = this.config.types[notification.type]?.color || 'blue';
-            return `bg-${color}-500`;
+        clearNotifications() {
+            this.notifications = [];
         },
 
         generateId() {
-            return Math.random().toString(36).substr(2, 9);
-        },
-
-        initDarkMode() {
-            const darkModeQuery = window.matchMedia('(prefers-color-scheme: dark)');
-            
-            const updateDarkMode = () => {
-                if (darkModeQuery.matches) {
-                    document.documentElement.classList.add('dark');
-                } else {
-                    document.documentElement.classList.remove('dark');
-                }
-            };
-            
-            updateDarkMode();
-            darkModeQuery.addEventListener('change', updateDarkMode);
-        },
-
-        initSound() {
-            this.sounds = {
-                success: this.createSound(800, 0.1, 'sine'),
-                error: this.createSound(400, 0.15, 'triangle'),
-                warning: this.createSound(600, 0.1, 'square'),
-                info: this.createSound(500, 0.1, 'sine')
-            };
-        },
-
-        createSound(frequency, duration, type = 'sine') {
-            return () => {
-                if (!window.AudioContext && !window.webkitAudioContext) return;
-                
-                const context = new (window.AudioContext || window.webkitAudioContext)();
-                const oscillator = context.createOscillator();
-                const gainNode = context.createGain();
-                
-                oscillator.connect(gainNode);
-                gainNode.connect(context.destination);
-                
-                oscillator.frequency.value = frequency;
-                oscillator.type = type;
-                
-                gainNode.gain.setValueAtTime(0.1, context.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, context.currentTime + duration);
-                
-                oscillator.start(context.currentTime);
-                oscillator.stop(context.currentTime + duration);
-            };
-        },
-
-        playSound(type) {
-            if (this.sounds && this.sounds[type]) {
-                this.sounds[type]();
-            }
+            return `notification-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
         }
     }));
 });
-
-// Global helper function for easy usage
-window.twiq = {
-    notify(type, message, options = {}) {
-        const event = new CustomEvent('twiq', {
-            detail: {
-                type,
-                message,
-                ...options
-            }
-        });
-        window.dispatchEvent(event);
-    },
-
-    success(message, options = {}) {
-        this.notify('success', message, options);
-    },
-
-    error(message, options = {}) {
-        this.notify('error', message, options);
-    },
-
-    warning(message, options = {}) {
-        this.notify('warning', message, options);
-    },
-
-    info(message, options = {}) {
-        this.notify('info', message, options);
-    }
-};

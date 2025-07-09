@@ -2,16 +2,24 @@
 
 return [
     'close' => 'Close',
-    'notification' => 'Notification',
     'success' => 'Success',
     'error' => 'Error',
     'warning' => 'Warning',
     'info' => 'Information',
-    'grouped' => 'and :count more',
+    
     'default_messages' => [
         'success' => 'Operation completed successfully!',
         'error' => 'An error occurred. Please try again.',
-        'warning' => 'Warning! Please check the entered data.',
+        'warning' => 'Warning: Please check the information.',
         'info' => 'Important information.',
+    ],
+
+    'notifications' => [
+        'saved' => 'Data saved successfully!',
+        'updated' => 'Data updated successfully!',
+        'deleted' => 'Data deleted successfully!',
+        'error_occurred' => 'An error occurred while processing your request.',
+        'validation_error' => 'Please check the form for errors.',
+        'permission_denied' => 'You do not have permission to perform this action.',
     ],
 ];

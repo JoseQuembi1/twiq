@@ -4,54 +4,49 @@ namespace Twiq\Traits;
 
 trait HasTwiqNotifications
 {
-    /**
-     * Dispatch a notification
-     */
-    public function notify(string $type, string $message, array $options = [])
-    {
-        $this->dispatch('twiq', array_merge([
-            'type' => $type,
-            'message' => $message,
-        ], $options));
-    }
-
-    /**
-     * Dispatch a success notification
-     */
-    public function notifySuccess(string $message, array $options = [])
+    public function notifySuccess(string $message, array $options = []): void
     {
         $this->notify('success', $message, $options);
     }
 
-    /**
-     * Dispatch an error notification
-     */
-    public function notifyError(string $message, array $options = [])
+    public function notifyError(string $message, array $options = []): void
     {
         $this->notify('error', $message, $options);
     }
 
-    /**
-     * Dispatch a warning notification
-     */
-    public function notifyWarning(string $message, array $options = [])
+    public function notifyWarning(string $message, array $options = []): void
     {
         $this->notify('warning', $message, $options);
     }
 
-    /**
-     * Dispatch an info notification
-     */
-    public function notifyInfo(string $message, array $options = [])
+    public function notifyInfo(string $message, array $options = []): void
     {
         $this->notify('info', $message, $options);
     }
 
-    /**
-     * Dispatch a persistent notification
-     */
-    public function notifyPersistent(string $type, string $message, array $options = [])
+    public function notifyPersistent(string $type, string $message, array $options = []): void
     {
-        $this->notify($type, $message, array_merge($options, ['persistent' => true]));
+        $options['persistent'] = true;
+        $this->notify($type, $message, $options);
+    }
+
+    public function notify(string $type, string $message, array $options = []): void
+    {
+        $notification = [
+            'type' => $type,
+            'message' => $message,
+            'title' => $options['title'] ?? null,
+            'duration' => $options['duration'] ?? config('twiq.types.' . $type . '.duration', config('twiq.duration', 5000)),
+            'persistent' => $options['persistent'] ?? false,
+            'id' => uniqid(),
+            'timestamp' => now()->toISOString(),
+        ];
+
+        $this->dispatch('twiq', $notification);
+    }
+
+    public function clearNotifications(): void
+    {
+        $this->dispatch('twiq:clear');
     }
 }
