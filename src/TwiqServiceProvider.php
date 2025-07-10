@@ -10,6 +10,7 @@ use Twiq\Components\TwiqContainer;
 use Twiq\Components\TwiqNotification;
 use Twiq\Http\Livewire\TwiqContainer as LivewireTwiqContainer;
 use Twiq\Services\TwiqNotificationService;
+use Twiq\Icons\IconSet;
 
 class TwiqServiceProvider extends ServiceProvider
 {
@@ -26,11 +27,19 @@ class TwiqServiceProvider extends ServiceProvider
     {
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'twiq');
         $this->loadTranslationsFrom(__DIR__.'/../resources/lang', 'twiq');
+        $this->publishes([
+            __DIR__.'/../resources/icons' => resource_path('icons/twiq'),
+        ], 'twiq-icons');
+
+        // Registrar ícones personalizados
+        $this->registerCustomIcons();
         
         $this->registerCommands();
         $this->registerComponents();
         $this->registerLivewireComponents();
         $this->registerPublishing();
+
+        
     }
 
     protected function registerCommands()
@@ -41,7 +50,20 @@ class TwiqServiceProvider extends ServiceProvider
             ]);
         }
     }
-
+    protected function registerCustomIcons(): void
+    {
+        $customIconsPath = resource_path('icons/twiq');
+        
+        if (is_dir($customIconsPath)) {
+            collect(scandir($customIconsPath))
+                ->filter(fn ($file) => pathinfo($file, PATHINFO_EXTENSION) === 'svg')
+                ->each(function ($file) use ($customIconsPath) {
+                    $name = pathinfo($file, PATHINFO_FILENAME);
+                    $svg = file_get_contents($customIconsPath . '/' . $file);
+                    IconSet::register($name, $svg);
+                });
+        }
+    }
     protected function registerComponents()
     {
         Blade::component('twiq', TwiqContainer::class);
