@@ -1,8 +1,8 @@
 <?php return array(
     'root' => array(
         'name' => 'twiq/livewire-notify',
-        'pretty_version' => 'v1.0.1',
-        'version' => '1.0.1.0',
+        'pretty_version' => 'v1.0.2',
+        'version' => '1.0.2.0',
         'reference' => null,
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
@@ -404,9 +404,9 @@
             'dev_requirement' => true,
         ),
         'laravel/prompts' => array(
-            'pretty_version' => 'v0.3.5',
-            'version' => '0.3.5.0',
-            'reference' => '57b8f7efe40333cdb925700891c7d7465325d3b1',
+            'pretty_version' => 'v0.3.6',
+            'version' => '0.3.6.0',
+            'reference' => '86a8b692e8661d0fb308cec64f3d176821323077',
             'type' => 'library',
             'install_path' => __DIR__ . '/../laravel/prompts',
             'aliases' => array(),
@@ -1329,8 +1329,8 @@
             'dev_requirement' => false,
         ),
         'twiq/livewire-notify' => array(
-            'pretty_version' => 'v1.0.1',
-            'version' => '1.0.1.0',
+            'pretty_version' => 'v1.0.2',
+            'version' => '1.0.2.0',
             'reference' => null,
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
